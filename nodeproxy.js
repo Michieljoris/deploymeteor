@@ -31,8 +31,8 @@ fs.readdir(nodeProxyDir, function(err, files) {
     //start proxy server
     server.listen(80, function() {
         console.log('Node Proxy Server started with options:', options);
-        // Downgrade the process to run as the ec2-user group and user now that it's bound to privileged ports.
-        process.setgid('ec2-user');
-        process.setuid('ec2-user');
+        // Downgrade the process to run as the ubuntu group and user now that it's bound to privileged ports.
+        process.setgid('ubuntu');
+        process.setuid('ubuntu');
     });
 });

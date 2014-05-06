@@ -1,6 +1,6 @@
 #!/bin/bash
 
-HOME_DIR=/home/ec2-user
+HOME_DIR=/home/ubuntu
 NODEPROXY_DIR=$HOME_DIR/nodeproxy
 PWD=`pwd`
 SCRIPTPATH="$HOME/.deploymeteor"
@@ -48,7 +48,7 @@ LAST_APP_HOST=$APP_HOST
 LAST_EC2_PEM_FILE=$EC2_PEM_FILE
 ENDCAT
 
-SSH_HOST="ec2-user@$APP_HOST"
+SSH_HOST="ubuntu@$APP_HOST"
 SSH_OPT="-i $EC2_PEM_FILE"
 
 case "$1" in
@@ -66,7 +66,8 @@ prepserver)
 
     #install nvm
     echo "Installing or updating NVM..."
-    sudo -H npm install -g nvm &> /dev/null
+    curl https://raw.githubusercontent.com/creationix/nvm/v0.6.1/install.sh | sh
+    # sudo -H npm install -g nvm &> /dev/null
     
     #install forever
     echo "Installing or updating Forever..."
@@ -451,7 +452,7 @@ if [ -d "$BUNDLE_DIR/server" ]; then
 fi
 
 # Copy the extracted and tweaked node application to the WWW_APP_DIR
-cp -R $BUNDLE_DIR/* $WWW_APP_DIR
+cp -Rf $BUNDLE_DIR/* $WWW_APP_DIR
 
 # Clean up any directories that we created
 if [ -d "$TMP_APP_DIR" ]; then
@@ -462,6 +463,7 @@ cd $WWW_APP_DIR
 
 # Use NVM to install and use correct version of node
 echo "Installing and using correct NodeJS version..."
+source ~/.nvm/nvm.sh
 nvm install $NODE_VERSION &> /dev/null
 nvm use $NODE_VERSION &> /dev/null
 sudo ln -sf ~/.nvm/$NODE_VERSION/bin/node /usr/bin/node &> /dev/null

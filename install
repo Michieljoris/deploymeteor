@@ -4,7 +4,7 @@ INSTALL_DIR="$HOME/.deploymeteor"
 
 if [ ! -d "$INSTALL_DIR" ];
 then
-	git clone http://github.com/aldeed/deploymeteor.git "$INSTALL_DIR"
+	git clone http://github.com/Michieljoris/deploymeteor.git "$INSTALL_DIR"
 else
 	cd "$INSTALL_DIR"
 	git pull
@@ -14,3 +14,5 @@ if [ ! -f /usr/local/bin/deploymeteor ];
 then
 	sudo ln -s "$INSTALL_DIR/deploymeteor.sh" /usr/local/bin/deploymeteor
 fi
+
+

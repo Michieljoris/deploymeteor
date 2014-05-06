@@ -1,3 +1,11 @@
+Tweaked a bit to make it work in my situation.
+* replaced ec2-user with ubuntu
+* forced copy to www directory (prevents permission errors when
+  overwriting)
+* sourced ~/.nvm/nvm.sh before using nvm command 
+
+
+
 # deploymeteor
 
 The deploymeteor script makes it as easy as possible to deploy one or more meteor apps to a standard Amazon EC2 server running the latest Amazon Linux AMI. It can be used to set up the server and to set up individual app environments on the server. Each app is hosted on a port that you specify, but the script also automatically sets up a node proxy server on port 80, which serves the correct app based on hostname.
@@ -7,7 +15,7 @@ The deploymeteor script makes it as easy as possible to deploy one or more meteo
 To install deploymeteor on your workstation (Mac or Linux), run this command in your terminal:
 
 ```bash
-$ sudo -H curl https://raw.github.com/aldeed/deploymeteor/master/install | sh
+$ sudo -H curl https://raw.github.com/Michieljoris/deploymeteor/master/install | sh
 ```
 
 ## Setting Up the Server
@@ -164,4 +172,4 @@ If you need to use multiple SSL certificates (because you're hosting multiple ro
 
 Thanks to @julien-c for inspiration in [meteoric.sh](https://github.com/julien-c/meteoric.sh) and credit to [this post](http://toroid.org/ams/git-website-howto).
 
-[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/aldeed/)
+[![Support via Gittip](https://rawgithub.com/twolfson/gittip-badge/0.2.0/dist/gittip.png)](https://www.gittip.com/Michieljoris/)
