@@ -395,27 +395,27 @@ sudo forever start -l $NODEPROXY_DIR/logs/forever.log -o $NODEPROXY_DIR/logs/out
 EOLENVSETUP
 echo "Creating the post-receive script and sending it to the EC2 server..."
 cat > tmp-post-receive <<ENDCAT
-#!/bin/sh
+#!/bin/bash
 
 # Clean up any directories that might exist already
-if [ -d "$TMP_APP_DIR" ]; then
-    sudo rm -rf $TMP_APP_DIR
+if [ -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp" ]; then
+    sudo rm -rf /home/ubuntu/meteorapps/meteor/dev/bundletmp
 fi
 
 # Create the temporary directory where all the project files should be copied when git pushed
-mkdir -p $TMP_APP_DIR
+mkdir -p /home/ubuntu/meteorapps/meteor/dev/bundletmp
 
 # Copy all the project files to the temporary directory
 echo "Copying updated project files on the EC2 server..."
-cd $GIT_APP_DIR
-GIT_WORK_TREE="$TMP_APP_DIR" git checkout -f &> /dev/null
+cd /home/ubuntu/meteorapps/meteor/dev/git
+GIT_WORK_TREE="/home/ubuntu/meteorapps/meteor/dev/bundletmp" git checkout -f &> /dev/null
 
-cd $TMP_APP_DIR
+cd /home/ubuntu/meteorapps/meteor/dev/bundletmp
 
 # Create the node bundle using the meteor/meteorite bundle command
 echo "Creating node bundle on the EC2 server..."
 # remove local directory if present to avoid potential permission issues
-if [ -d "$TMP_APP_DIR/.meteor/local" ]; then
+if [ -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp/.meteor/local" ]; then
     sudo rm -r .meteor/local
 fi
 # bundle
@@ -427,55 +427,63 @@ meteor bundle bundle.tgz
 echo "Extracting node bundle on the EC2 server..."
 tar -zxvf bundle.tgz &> /dev/null
 sudo rm -f bundle.tgz &> /dev/null
+# tar -zxvf bundle.tgz
+# sudo rm -f bundle.tgz 
 
-if [ ! -d "$BUNDLE_DIR" ]; then
+
+if [ ! -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle" ]; then
     echo "Meteor bundle command failed!"
-    sudo rm -rf $TMP_APP_DIR
+    sudo rm -rf /home/ubuntu/meteorapps/meteor/dev/bundletmp
     exit 1
 fi
 
 # Reinstall fibers
 # (http://stackoverflow.com/questions/13327088/meteor-bundle-fails-because-fibers-node-is-missing)
-echo "Reinstalling fibers in the node bundle on the EC2 server..."
-if [ -d "$BUNDLE_DIR/programs/server" ]; then
-    cd $BUNDLE_DIR/programs/server
+echo "Bundle/programs/server: Reinstalling fibers in the node bundle on the EC2 server..."
+if [ -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle/programs/server" ]; then
+    cd /home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle/programs/server
     sudo rm -rf node_modules/fibers
-    npm uninstall fibers &> /dev/null
-    npm install fibers &> /dev/null
+    npm uninstall fibers 
+    npm install fibers 
 fi
 
-if [ -d "$BUNDLE_DIR/server" ]; then
-    cd $BUNDLE_DIR/server
+echo "Bundle/server: Reinstalling fibers in the node bundle on the EC2 server..."
+if [ -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle/server" ]; then
+    cd /home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle/server
     sudo rm -rf node_modules/fibers
-    npm uninstall fibers &> /dev/null
-    npm install fibers &> /dev/null
+    npm uninstall fibers 
+    npm install fibers 
 fi
 
+echo "Copying the extracted and tweaked node application to the $WWW_APP_DIR"
 # Copy the extracted and tweaked node application to the WWW_APP_DIR
-cp -Rf $BUNDLE_DIR/* $WWW_APP_DIR
+cp -Rf /home/ubuntu/meteorapps/meteor/dev/bundletmp/bundle/* /home/ubuntu/meteorapps/meteor/dev/www
 
 # Clean up any directories that we created
-if [ -d "$TMP_APP_DIR" ]; then
-    sudo rm -rf $TMP_APP_DIR
+if [ -d "/home/ubuntu/meteorapps/meteor/dev/bundletmp" ]; then
+    sudo rm -rf /home/ubuntu/meteorapps/meteor/dev/bundletmp
 fi
 
-cd $WWW_APP_DIR
+cd /home/ubuntu/meteorapps/meteor/dev/www
 
 # Use NVM to install and use correct version of node
 echo "Installing and using correct NodeJS version..."
-source ~/.nvm/nvm.sh
-nvm install $NODE_VERSION &> /dev/null
-nvm use $NODE_VERSION &> /dev/null
-sudo ln -sf ~/.nvm/$NODE_VERSION/bin/node /usr/bin/node &> /dev/null
-sudo ln -sf ~/.nvm/$NODE_VERSION/bin/node /usr/local/bin/node &> /dev/null
+source /home/ubuntu/.nvm/nvm.sh
+nvm install v0.10.27 &> /dev/null
+nvm use v0.10.27 &> /dev/null
+sudo ln -sf ~/.nvm/v0.10.27/bin/node /usr/bin/node &> /dev/null
+sudo ln -sf ~/.nvm/v0.10.27/bin/node /usr/local/bin/node &> /dev/null
 
 # Try to stop the node app using forever, in case it's already running
-echo "Starting or restarting the $1 environment of $APP_NAME on the EC2 server..."
-sudo forever stop $WWW_APP_DIR/main.js &> /dev/null
+echo "Starting or restarting the dev environment of meteor on the EC2 server..."
+sudo forever stop /home/ubuntu/meteorapps/meteor/dev/www/main.js 
 
 # Start the node app using forever
-export PORT=$PORT ROOT_URL=$ROOT_URL${MONGO_URL_SETTER}${MAIL_URL_SETTER}${SETTINGS_SETTER}
-sudo -E forever start -l $LOG_DIR/forever.log -o $LOG_DIR/out.log -e $LOG_DIR/err.log -a -s $WWW_APP_DIR/main.js &> /dev/null
+export PORT=8000 
+export ROOT_URL=http://edge.axion5.net 
+export MONGO_URL=mongodb://localhost:27017/edge
+sudo -E forever start -l /home/ubuntu/meteorapps/meteor/dev/logs/forever.log -o /home/ubuntu/meteorapps/meteor/dev/logs/out.log -e /home/ubuntu/meteorapps/meteor/dev/logs/err.log -a -s /home/ubuntu/meteorapps/meteor/dev/www/main.js
+
 ENDCAT
 # Secure copy the post-receive script we just created, and then delete it
 scp $SSH_OPT tmp-post-receive $SSH_HOST:$GIT_APP_DIR/hooks/post-receive &> /dev/null

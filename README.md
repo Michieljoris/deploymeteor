@@ -3,7 +3,7 @@ Tweaked a bit to make it work in my situation.
 * forced copy to www directory (prevents permission errors when
   overwriting)
 * sourced ~/.nvm/nvm.sh before using nvm command 
-
+* add -L option to curl (not working otherwise)
 
 
 # deploymeteor
@@ -15,7 +15,7 @@ The deploymeteor script makes it as easy as possible to deploy one or more meteo
 To install deploymeteor on your workstation (Mac or Linux), run this command in your terminal:
 
 ```bash
-$ sudo -H curl https://raw.github.com/Michieljoris/deploymeteor/master/install | sh
+$ sudo -H curl -L https://raw.github.com/Michieljoris/deploymeteor/master/install | sh
 ```
 
 ## Setting Up the Server
