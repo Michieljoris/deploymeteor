@@ -4,6 +4,7 @@ Tweaked a bit to make it work in my situation.
   overwriting)
 * sourced ~/.nvm/nvm.sh before using nvm command 
 * add -L option to curl (not working otherwise)
+* added non sudo install script 
 
 
 # deploymeteor
@@ -15,14 +16,27 @@ The deploymeteor script makes it as easy as possible to deploy one or more meteo
 To install deploymeteor on your workstation (Mac or Linux), run this command in your terminal:
 
 ```bash
-$ sudo -H curl -L https://raw.github.com/Michieljoris/deploymeteor/master/install | sh
+  sudo -H curl -L https://raw.github.com/Michieljoris/deploymeteor/master/install | sh
 ```
+
+This will clone this repo to ~/.deploymeteor, and make a link to the
+deploymeteor.sh in /usr/local/bin as deploymeteor
+
+For a non sudo method run:
+
+```bash
+  curl -L https://raw.github.com/Michieljoris/deploymeteor/master/install.local | sh
+```
+
+This will install the link in your ~/bin directory, this will have to be in your path.
+
 
 ## Setting Up the Server
 
 1. Launch a new Amazon Linux EC2 server and make note of its hostname. You can deploy multiple meteor apps/websites to this one server. Make sure to enable SSH (port 22) and HTTP (port 80). You might want to open additional ports or port ranges for connecting directly to your meteor apps.
-2. SSH into the EC2 server and enter `sudo visudo`. Near the bottom, press I to switch to insert mode and insert a ! before `requiretty`. This is necessary for the deploymeteor script to work correctly. Press ESC and enter `:w!`. Now enter `:q` to quit.
-3. On your workstation, open a Terminal session and enter `deploymeteor prepserver`. Answer the prompts. The host is the one you noted in step 1 and the key file is the one you downloaded while setting up the EC2 server.
+2. On your workstation, open a Terminal session and enter `deploymeteor
+prepserver`. Answer the prompts. The host is the one you noted in step 1 and the
+key file is the one you use to ssh into the virtual machine.
 
 You may now use this server to host one or more meteor apps. You never need to run `deploymeteor prepserver` for this server again, but you may do so whenever you want to ensure that the server is running the latest versions of node, meteor, etc.
 

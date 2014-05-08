@@ -10,11 +10,10 @@ else
 	git pull
 fi
 
-if [ ! -f /usr/local/bin/deploymeteor ];
+if [ ! -f "$HOME/bin/deploymeteor" ];
 then
-	sudo ln -s "$INSTALL_DIR/deploymeteor.sh" /usr/local/bin/deploymeteor
+	ln -s "$INSTALL_DIR/deploymeteor.sh" "$HOME/bin/deploymeteor"
 fi
-
 
 
 
